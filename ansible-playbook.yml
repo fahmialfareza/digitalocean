@@ -4,9 +4,10 @@
   connection: local
   tasks:
     - name: Configure kubectl with DigitalOcean Kubernetes Cluster
-      shell: doctl kubernetes cluster kubeconfig save {{ cluster_name }}
+      shell: doctl kubernetes cluster kubeconfig save {{ CLUSTER_NAME }}
       environment:
         DIGITALOCEAN_ACCESS_TOKEN: "{{ lookup('env', 'DO_API_TOKEN') }}"
+        CLUSTER_NAME: "{{ lookup('env', 'KUBERNETES_CLUSTER_NAME') }}"
 
     - name: Install Nginx Ingress Controller
       shell: |
