@@ -50,6 +50,6 @@ jobs:
 
       - name: Clean up Terraform state
         run: terraform destroy -auto-approve
-        if: always()
+        if: failure()
         env:
           TF_VAR_do_token: ${{ secrets.DO_API_TOKEN }}
