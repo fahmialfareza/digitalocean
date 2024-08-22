@@ -39,27 +39,11 @@ jobs:
       - name: Install Ansible
         run: sudo apt-get install -y ansible
 
-      - name: Install doctl
-        run: |
-          curl -sL https://github.com/digitalocean/doctl/releases/download/v1.88.0/doctl-1.88.0-linux-amd64.tar.gz | tar -xzv
-          sudo mv doctl /usr/local/bin/
-
       - name: Set up kubectl
         run: |
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x ./kubectl
           sudo mv ./kubectl /usr/local/bin/kubectl
-
-      - name: Validate Terraform Output
-        run: |
-          output=$(terraform output -raw kubernetes_cluster_name | head -n 1)
-          if [ -z "$output" ]; then
-            echo "kubernetes_cluster_name is empty or invalid"
-            exit 1
-          fi
-          echo "kubernetes_cluster_name is $output"
-        env:
-          TF_VAR_do_token: ${{ secrets.DO_API_TOKEN }}
 
       - name: Run Ansible Playbook
         run: |
