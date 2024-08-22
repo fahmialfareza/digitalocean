@@ -11,11 +11,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Restore Terraform State
+      - name: Download Terraform State (if exists)
         uses: actions/download-artifact@v3
         with:
           name: terraform-state
           path: ./terraform
+        continue-on-error: true # Skip the error if the artifact doesn't exist
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
