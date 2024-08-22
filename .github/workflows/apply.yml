@@ -15,7 +15,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: terraform-state
-          path: ./terraform
+          path: ./terraform.tfstate
         continue-on-error: true # Skip the error if the artifact doesn't exist
 
       - name: Set up Terraform
@@ -41,12 +41,17 @@ jobs:
 
       - name: Install Nginx Ingress
         run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/do/deploy.yaml
+        continue-on-error: true
+
+      - name: Install Metrics Server
+        run: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+        continue-on-error: true
 
       - name: Save Terraform State
         uses: actions/upload-artifact@v3
         with:
           name: terraform-state
-          path: ./terraform/terraform.tfstate
+          path: terraform.tfstate
 
       - name: Clean up Terraform state
         run: terraform destroy -auto-approve

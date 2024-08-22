@@ -66,7 +66,7 @@ resource "digitalocean_kubernetes_cluster" "k8s" {
 
   node_pool {
     name       = "worker-pool"
-    size       = "s-1vcpu-2gb"
+    size       = "s-2vcpu-2gb"
     min_nodes  = 1
     max_nodes  = 2
     auto_scale = true
