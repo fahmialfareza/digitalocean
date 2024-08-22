@@ -1,0 +1,49 @@
+name: Apply to DigitalOcean
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.4.0 # or your preferred version
+
+      - name: Initialize Terraform
+        run: terraform init
+
+      - name: Apply Terraform
+        run: terraform apply -auto-approve
+        env:
+          TF_VAR_do_token: ${{ secrets.DO_API_TOKEN }}
+
+      - name: Install Ansible
+        run: sudo apt-get install -y ansible
+
+      - name: Set up kubectl
+        run: |
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook -i localhost, ansible-playbook.yml --extra-vars "cluster_name=$(terraform output -raw kubernetes_cluster_name) registry_url=$(terraform output -raw container_registry_info | jq -r .url) registry_username=$(terraform output -raw container_registry_info | jq -r .username) registry_password=$(terraform output -raw container_registry_info | jq -r .password) redis_private_uri=$(terraform output -raw redis_database_info | jq -r .private_uri)"
+        env:
+          DO_API_TOKEN: ${{ secrets.DO_API_TOKEN }}
+
+      - name: Clean up Terraform state
+        run: terraform destroy -auto-approve
+        if: always()
+        env:
+          TF_VAR_do_token: ${{ secrets.DO_API_TOKEN }}
