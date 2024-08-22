@@ -1,13 +1,8 @@
 ---
 - name: Set up Kubernetes Cluster with Nginx
   hosts: localhost
+  connection: local
   tasks:
-    - name: Install kubectl
-      shell: |
-        curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-        chmod +x ./kubectl
-        sudo mv ./kubectl /usr/local/bin/kubectl
-
     - name: Configure kubectl with DigitalOcean Kubernetes Cluster
       shell: doctl kubernetes cluster kubeconfig save {{ cluster_name }}
       environment:
@@ -18,18 +13,3 @@
         kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
       environment:
         KUBECONFIG: "~/.kube/config"
-
-- name: Print output details
-  hosts: localhost
-  tasks:
-    - name: Print Container Registry details
-      debug:
-        msg: "Container Registry URL: {{ registry_url }}, Username: {{ registry_username }}, Password: {{ registry_password }}"
-
-    - name: Print Redis Database details
-      debug:
-        msg: "Redis Private URI: {{ redis_private_uri }}"
-
-    - name: Print Kubernetes Cluster name
-      debug:
-        msg: "Kubernetes Cluster Name: {{ cluster_name }}"
