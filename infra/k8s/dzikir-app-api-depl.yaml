@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dzikir-app-api-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dzikir-app-api
+  template:
+    metadata:
+      labels:
+        app: dzikir-app-api
+    spec:
+      containers:
+        - name: dzikir-app-api
+          image: registry.digitalocean.com/fahmialfareza/dzikir-app-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: SALAT_TIME_REST_API
+              valueFrom:
+                secretKeyRef:
+                  name: dzikir-app-api-salat-time-rest-api
+                  key: SALAT_TIME_REST_API
+            - name: QURAN_REST_API
+              valueFrom:
+                secretKeyRef:
+                  name: dzikir-app-api-quran-rest-api
+                  key: QURAN_REST_API
+            - name: HIJRI_REST_API
+              valueFrom:
+                secretKeyRef:
+                  name: dzikir-app-api-hijri-rest-api
+                  key: HIJRI_REST_API
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dzikir-app-api-redis-url
+                  key: REDIS_URL
+            - name: GEOCODE_REST_API
+              valueFrom:
+                secretKeyRef:
+                  name: dzikir-app-api-geocode-rest-api
+                  key: GEOCODE_REST_API
+            - name: GEOCODE_REST_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dzikir-app-api-geocode-rest-api-key
+                  key: GEOCODE_REST_API_KEY
+            - name: ENV
+              valueFrom:
+                secretKeyRef:
+                  name: dzikir-app-api-env
+                  key: ENV
+            - name: NEW_RELIC_LICENSE
+              valueFrom:
+                secretKeyRef:
+                  name: dzikir-app-api-new-relic-license
+                  key: NEW_RELIC_LICENSE
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "128m"
+            requests:
+              memory: "128Mi"
+              cpu: "64m"
+          livenessProbe:
+            tcpSocket:
+              port: 8000 # The port to check
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 8000 # The port to check
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dzikir-app-api-srv
+spec:
+  selector:
+    app: dzikir-app-api
+  ports:
+    - name: dzikir-app-api
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dzikir-app-api-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: dzikir-app-api-depl
+  minReplicas: 1
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80 # Target 80% CPU utilization
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 70 # Target 70% Memory utilization
