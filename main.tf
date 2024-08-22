@@ -26,14 +26,12 @@ provider "digitalocean" {
 resource "digitalocean_container_registry" "registry" {
   name                   = var.project_name
   region                 = "sgp1"
-  subscription_tier_slug = "starter"
+  subscription_tier_slug = "basic"
 }
 
 output "container_registry_info" {
   value = {
-    url      = digitalocean_container_registry.registry.endpoint
-    username = digitalocean_container_registry.registry.docker_username
-    password = digitalocean_container_registry.registry.docker_password
+    url = digitalocean_container_registry.registry.endpoint
   }
 }
 
