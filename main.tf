@@ -55,6 +55,7 @@ output "redis_database_info" {
   value = {
     private_uri = digitalocean_database_cluster.redis.private_uri
   }
+  sensitive = true
 }
 
 # Create Kubernetes Cluster
