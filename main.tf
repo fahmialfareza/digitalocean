@@ -46,7 +46,7 @@ resource "digitalocean_database_cluster" "redis" {
   node_count           = 1
 }
 
-resource "digitalocean_vpc" "default" {
+data "digitalocean_vpc" "existing" {
   name   = "default-sgp1"
   region = "sgp1"
 }
