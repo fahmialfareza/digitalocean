@@ -47,8 +47,7 @@ resource "digitalocean_database_cluster" "redis" {
 }
 
 data "digitalocean_vpc" "existing" {
-  name   = "default-sgp1"
-  region = "sgp1"
+  name = "default-sgp1"
 }
 
 output "redis_database_info" {
