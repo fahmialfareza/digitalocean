@@ -6,7 +6,7 @@
     - name: Configure kubectl with DigitalOcean Kubernetes Cluster
       shell: doctl kubernetes cluster kubeconfig save {{ cluster_name }}
       environment:
-        DO_API_TOKEN: "{{ lookup('env', 'DO_API_TOKEN') }}"
+        DIGITALOCEAN_ACCESS_TOKEN: "{{ lookup('env', 'DO_API_TOKEN') }}"
 
     - name: Install Nginx Ingress Controller
       shell: |
