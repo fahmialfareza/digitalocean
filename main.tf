@@ -42,8 +42,8 @@ resource "digitalocean_database_cluster" "redis" {
   version              = "7"
   region               = "sgp1"
   size                 = "db-s-1vcpu-1gb"
-  private_network_uuid = digitalocean_vpc.default.id
-  node_count           = 1
+  private_network_uuid = data.digitalocean_vpc.existing.id
+  node_count           = 1 # Specify the number of nodes in the cluster
 }
 
 data "digitalocean_vpc" "existing" {
@@ -73,7 +73,7 @@ resource "digitalocean_kubernetes_cluster" "k8s" {
     auto_scale = true
   }
 
-  vpc_uuid = digitalocean_vpc.default.id
+  vpc_uuid = data.digitalocean_vpc.existing.id
 }
 
 output "kubernetes_cluster_name" {
