@@ -38,7 +38,8 @@ jobs:
 
       - name: Run Ansible Playbook
         run: |
-          ansible-playbook -i localhost, ansible-playbook.yml --extra-vars "cluster_name=$(terraform output -raw kubernetes_cluster_name) registry_url=$(terraform output -raw container_registry_info | jq -r .url) registry_username=$(terraform output -raw container_registry_info | jq -r .username) registry_password=$(terraform output -raw container_registry_info | jq -r .password) redis_private_uri=$(terraform output -raw redis_database_info | jq -r .private_uri)"
+          ansible-playbook -i localhost, ansible-playbook.yml --connection=local --extra-vars "cluster_name=$(terraform output -raw kubernetes_cluster_name) registry_url=$(terraform output -raw container_registry_info | jq -r .url) registry_username=$(terraform output -raw container_registry_info | jq -r .username) registry_password=$(terraform output -raw container_registry_info | jq -r .password) redis_private_uri=$(terraform output -raw redis_database_info | jq -r .private_uri)"
+
         env:
           DO_API_TOKEN: ${{ secrets.DO_API_TOKEN }}
 
