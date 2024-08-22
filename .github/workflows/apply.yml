@@ -63,10 +63,7 @@ jobs:
 
       - name: Run Ansible Playbook
         run: |
-          ansible-playbook -i localhost, ansible-playbook.yml --extra-vars "cluster_name=${KUBERNETES_CLUSTER_NAME}"
-        env:
-          DO_API_TOKEN: ${{ secrets.DO_API_TOKEN }}
-          KUBERNETES_CLUSTER_NAME: ${{ secrets.KUBERNETES_CLUSTER_NAME }}
+          ansible-playbook -i localhost, ansible-playbook.yml
 
       - name: Save Terraform State
         uses: actions/upload-artifact@v3
