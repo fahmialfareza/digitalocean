@@ -26,28 +26,21 @@ jobs:
       - name: Initialize Terraform
         run: terraform init
 
-      - name: Plan Terraform Changes
-        run: terraform plan
-        env:
-          TF_VAR_do_token: ${{ secrets.DO_API_TOKEN }}
-
       - name: Apply Terraform
         run: terraform apply -auto-approve
         env:
           TF_VAR_do_token: ${{ secrets.DO_API_TOKEN }}
 
-      - name: Install Ansible
-        run: sudo apt-get install -y ansible
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
 
-      - name: Set up kubectl
-        run: |
-          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x ./kubectl
-          sudo mv ./kubectl /usr/local/bin/kubectl
+      - name: Configure doctl
+        run: doctl kubernetes cluster kubeconfig save ${{ secrets.KUBERNETES_CLUSTER_NAME }}
 
-      - name: Run Ansible Playbook
-        run: |
-          ansible-playbook -i localhost, ansible-playbook.yml
+      - name: Install Nginx Ingress
+        run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.2/deploy/static/provider/do/deploy.yaml
 
       - name: Save Terraform State
         uses: actions/upload-artifact@v3
