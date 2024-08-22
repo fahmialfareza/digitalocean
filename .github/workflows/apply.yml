@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  apply:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,6 +18,11 @@ jobs:
 
       - name: Initialize Terraform
         run: terraform init
+
+      - name: Plan Terraform Changes
+        run: terraform plan
+        env:
+          TF_VAR_do_token: ${{ secrets.DO_API_TOKEN }}
 
       - name: Apply Terraform
         run: terraform apply -auto-approve
@@ -33,10 +38,19 @@ jobs:
           chmod +x ./kubectl
           sudo mv ./kubectl /usr/local/bin/kubectl
 
+      - name: Validate Terraform Output
+        run: |
+          output=$(terraform output -raw kubernetes_cluster_name)
+          if [ -z "$output" ]; then
+            echo "kubernetes_cluster_name is empty or invalid"
+            exit 1
+          fi
+        env:
+          TF_VAR_do_token: ${{ secrets.DO_API_TOKEN }}
+
       - name: Run Ansible Playbook
         run: |
           ansible-playbook -i localhost, ansible-playbook.yml --extra-vars "cluster_name=$(terraform output -raw kubernetes_cluster_name)"
-
         env:
           DO_API_TOKEN: ${{ secrets.DO_API_TOKEN }}
 
