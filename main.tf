@@ -1,13 +1,25 @@
-provider "digitalocean" {
-  token = var.do_token
+variable "project_name" {
+  description = "The name of the project"
+  type        = string
+  default     = "fahmialfareza" # Set a default value or override it in your Terraform command or tfvars file
 }
 
 variable "do_token" {
   description = "DigitalOcean API token"
+  type        = string
 }
 
-variable "project_name" {
-  default = "fahmialfareza"
+terraform {
+  required_providers {
+    digitalocean = {
+      source  = "digitalocean/digitalocean"
+      version = "~> 2.0" # Specify the version you want to use
+    }
+  }
+}
+
+provider "digitalocean" {
+  token = var.do_token
 }
 
 # Create Container Registry
@@ -27,12 +39,13 @@ output "container_registry_info" {
 
 # Create Redis Database Cluster
 resource "digitalocean_database_cluster" "redis" {
-  name     = "${var.project_name}-redis"
-  engine   = "redis"
-  version  = "7"
-  region   = "sgp1"
-  size     = "db-s-1vcpu-1gb"
-  vpc_uuid = digitalocean_vpc.default.id
+  name                 = "${var.project_name}-redis"
+  engine               = "redis"
+  version              = "7"
+  region               = "sgp1"
+  size                 = "db-s-1vcpu-1gb"
+  private_network_uuid = digitalocean_vpc.default.id
+  node_count           = 1
 }
 
 resource "digitalocean_vpc" "default" {
