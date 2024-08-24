@@ -1,10 +1,10 @@
-name: Apply to DigitalOcean
+name: Destroy from DigitalOcean
 
 on:
   workflow_dispatch:
 
 jobs:
-  apply:
+  destroy:
     runs-on: ubuntu-latest
 
     steps:
